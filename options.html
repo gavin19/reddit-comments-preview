@@ -1,0 +1,65 @@
+<html>
+<head><title>Options</title></head>
+<style type="text/css">
+.frame, .frame ~ .status{
+	display: inline-block;
+	background: #f2f2f2;
+	padding: 10px;
+	border: 1px solid #dbdbdb;
+	border-radius: 5px;
+}
+.frame h1{
+	margin-top: 0;
+}
+.frame ~ .status {
+	margin: 8px 0;
+	display: none;
+	height: auto;
+	width: auto;
+}
+button + button{
+	float: right;
+}
+</style>
+<body>
+<div class="frame">
+<h2>Options</h2>
+<h3>Select number of comments to preview by default (if available)</h3>
+<select name="topComments">
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3" selected>3</option>
+  <option value="4">4</option>
+  <option value="5">5</option>
+  <option value="6">6</option>
+  <option value="7">7</option>
+  <option value="8">8</option>
+  <option value="9">9</option>
+</select>
+<br />
+<h3>Select default sort type to fetch comments from</h3>
+<select name="sortType">
+  <option value="hot">hot</option>
+  <option value="top" selected>top</option>
+  <option value="controversial">controversial</option>
+  <option value="rising">rising</option>
+</select>
+<br />
+<h3>Select whether the link triggers on click or hover</h3>
+<select name="eventType">
+  <option value="click" selected>click</option>
+  <option value="mouseover">hover</option>
+</select>
+<br />
+<h3>Select colour of 'top' link</h3>
+<input type="color">
+<br /><br /><hr><br />
+<button id="save">Save</button>
+</div>
+<br />
+<div class="status"></div>
+</body>
+
+<script src="options.js"></script>
+
+</html>
