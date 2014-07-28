@@ -8,22 +8,25 @@ var tcp = {
 		topColour: '#444'
 	},
 	addTopLinks: function (page) {
-		var i, len, link, li, parent, articleID, tmp, first,
-			ele = page || document,
-			a = ele.querySelectorAll('.listing-page .linklisting .comments:not(.empty)');
+		var i, len, link, li, parent, articleID, tmp, first, a;
+		if (page) {
+			a = page.querySelectorAll('.comments:not(.empty)');
+		} else {
+			a = document.querySelectorAll('.linklisting .comments:not(.empty)');
+		}
 		if (a.length) {
 			for (i = 0, len = a.length; i < len; i += 1) {
-				if (!a[i].parentNode.querySelector('.toplink') && /[0-9]/.test(a[i])) {
-					articleID = a[i].getAttribute('href');
-					articleID = articleID.substring(articleID.indexOf('/comments/') + 10, articleID.indexOf('/comments/') + 16);
+				if (!a[i].parentNode.parentNode.querySelector('.toplink')) {
+					articleID = a[i].href.split('/')[6];
 					link = document.createElement('a');
 					li = document.createElement('li');
+					li.className = 'rcp';
 					li.appendChild(link);
 					link.className = 'toplink';
 					tmp = "java";
 					link.href = tmp + 'script:;';
 					link.setAttribute('id', 'toplink' + articleID);
-					link.setAttribute('style', 'color:' + tcp.opts.topColour + ';text-decoration:none;');
+					link.setAttribute('style', 'color:' + tcp.opts.topColour + ';');
 					link.textContent = ' top';
 					parent = a[i].parentNode.parentNode;
 					first = parent.querySelector('.first + li');
@@ -50,8 +53,8 @@ var tcp = {
 			pre.setAttribute('id', 'preview' + articleID);
 			pre.classList.add('loading');
 			pre.addEventListener('click', tcp.kill_preview);
-			ele.querySelector('.flat-list.buttons').insertBefore(pre, null);
-			url = 'http://www.reddit.com/comments/' + articleID + '/.json?limit=' + (tcp.opts.topComments + 5) + sort;
+			ele.insertBefore(pre, null);
+			url = '//www.reddit.com/comments/' + articleID + '/.json?limit=' + (tcp.opts.topComments + 5) + sort;
 			xhr = new XMLHttpRequest();
 			xhr.open('GET', url, true);
 			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -63,7 +66,6 @@ var tcp = {
 			xhr.send(null);
 		} else {
 			thisPre = document.querySelector('#preview' + articleID);
-			thisPre.parentNode.parentNode.style.marginBottom = '';
 			thisPre.parentNode.removeChild(thisPre);
 		}
 	},
@@ -87,7 +89,7 @@ var tcp = {
 				linkid = linkiid.replace("t3_", "");
 				commid = comments[1].data.children[i].data.id;
 				newHtml += (i > 0 ? '<hr>' : '');
-				newHtml += '<a class="link" target="_blank" href="/u/' + author;
+				newHtml += '<a class="ulink" target="_blank" href="/u/' + author;
 				newHtml += '">' + author + '</a>';
 				newHtml += '<span class="points">| score: ' + score + '</span>';
 				newHtml += '<a class="permalink" target="_blank" href="' + permalink + commid + '">permalink</a><br />' + content;
@@ -97,32 +99,33 @@ var tcp = {
 		if (article) {
 			article.classList.remove('loading');
 			article.innerHTML = newHtml;
-			article.parentNode.parentNode.style.marginBottom = (article.offsetHeight + 16) + 'px';
 			article.removeEventListener(tcp.opts.eventType, tcp.kill_preview);
 		}
 	},
 	addStyle: function () {
 		var style,
 			sheet = '';
-		sheet += "div[id^=preview]{box-sizing:border-box;-moz-box-sizing:border-box;background:#fff;border-radius:5px;border:1px solid #dbdbdb;white-space:normal;padding:5px;position:absolute;margin:8px 0;}";
+		sheet += "div[id^=preview]{box-sizing:border-box;-moz-box-sizing:border-box;background:#fff;border-radius:5px;border:1px solid #dbdbdb;white-space:normal;padding:5px;display:inline-block;margin:8px 0;}";
 		sheet += ".loading:before{content:\"Loading...\";}div[id^=preview] .md{border:1px solid #ddd;background:#f0f0f0;box-sizing:border-box;-moz-box-sizing:border-box;margin:3px 0;box-sizing:border-box;padding:2px 8px;}";
-		sheet += "div[id^=preview] .md *{white-space:normal;}";
-		sheet += "div[id^=preview] .link,div[id^=preview] .md a{font-weight:bold;color:#369!important;}";
-		sheet += ".listing-page .linklisting .buttons li { vertical-align: top; }";
+		sheet += "div[id^=preview] .md *{white-space:normal;}div[id^=preview] .md code{white-space:pre;}";
+		sheet += "div[id^=preview] .md pre{overflow:visible}div[id^=preview]>*{font-size: small;}";
+		sheet += "div[id^=preview] .ulink,div[id^=preview] .md a{font-weight:bold;color:#369!important;}";
+		sheet += ".listing-page .buttons li{vertical-align:top;}.toplink{text-decoration:none;}";
 		sheet += ".permalink { float: right; color: #666;}.points{color:#333;font-weight:bold;margin-left:.5em;}"
-		sheet += ".res-nightmode div[id^=preview] .link{ color: rgba(20, 150, 220, 0.8)!important; }";
-		sheet += ".res-nightmode div[id^=preview]{ background: #333!important;border-color:#666!important }";
-		sheet += ".res-nightmode .toplink{ color: #eee!important; }";
-		sheet += ".res-nightmode div[id^=preview] .points{ color: #ddd!important; }";
-		sheet += ".res-nightmode div[id^=preview] .permalink{ color: #ccc!important; }";
-		sheet += ".res-nightmode div[id^=preview] .md{ background: #666!important;border-color: #222!important; }";
-		sheet += ".res-nightmode div[id^=preview] hr{ border-color: #777!important; }";
+		sheet += ".res-nightmode div[id^=preview] .ulink,.res-nightmode div[id^=preview] .md a{color: rgb(20, 150, 220)!important;}";
+		sheet += ".res-nightmode div[id^=preview]{ background: #333!important;border-color:#666!important}";
+		sheet += ".res-nightmode .toplink{color: #eee!important;}";
+		sheet += ".res-nightmode div[id^=preview] .points{color: #ddd!important;}";
+		sheet += ".res-nightmode div[id^=preview] .permalink{color: #ccc!important;}";
+		sheet += ".res-nightmode div[id^=preview] .md{background:#555!important;border-color: #222!important;}";
+		sheet += ".res-nightmode div[id^=preview] hr{border-color:#777!important;}";
 		style = document.createElement('style');
 		style.type = 'text/css';
 		style.textContent = sheet;
 		document.querySelector('head').appendChild(style);
 	},
 	init: function () {
+		document.body.classList.add('rcp');
 		document.body.addEventListener('DOMNodeInserted', function (e) {
 			if ((e.target.tagName === 'DIV') && (e.target.getAttribute('id') && e.target.getAttribute('id').indexOf('siteTable') !== -1)) {
 				tcp.addTopLinks(e.target);
